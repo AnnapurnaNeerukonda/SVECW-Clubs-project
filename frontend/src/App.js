@@ -8,6 +8,7 @@ import Clubs from './Clubs';
 import Appa from './CreatePost';
 import Postdisplay from './Postdisplay';
 import MacBookProPostForm from './CreatePost';
+import UserProfile from './uploadprofilepicture';
 function App(){
   return(
     <div>
@@ -18,7 +19,8 @@ function App(){
         <Route path="/login" element={<LoginPage />} /> 
         <Route path='/clubs' element ={<Clubs/>}/>
         <Route path='/displaypost' element={<Postdisplay/>}/>
-        <Route path='/post' element={< Appa/>}/>        
+        <Route path='/post' element={< Appa/>}/> 
+        <Route path='/user' element={<UserProfile/>}   />    
       </Routes>
     </div>
   )

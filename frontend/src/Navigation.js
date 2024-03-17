@@ -29,6 +29,9 @@ export default function Navigation() {
         <li>
           <Link to="/displaypost">Post</Link>
         </li>
+        <li>
+          <Link to="/user">Profile</Link>
+        </li>
       </ul>
     </nav>
   );

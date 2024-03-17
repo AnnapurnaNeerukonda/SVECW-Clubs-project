@@ -132,6 +132,53 @@ app.post('/posts/:postId/like', (req, res) => {
         }
     });
 });
+// app.post('/login', (req, res) => {
+//     const { email, password } = req.body;
+//     console.log(email, password);
+
+//     // Check if email is from svecw.edu.in domain
+//     if (email.endsWith('@svecw.edu.in')) {
+//         // Login the user using the users table
+//         connection.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password], (err, results) => {
+//             if (err) {
+//                 console.error('Error querying database:', err);
+//                 return res.status(500).json({ message: 'Internal server error.' });
+//             }
+
+//             // If user with the provided email and password does not exist
+//             if (results.length === 0) {
+//                 return res.status(404).json({ message: 'User not found or incorrect password.' });
+//             }
+
+//             // User found, generate JWT token
+//             const user = results[0];
+//             const token = jwt.sign({ email: user.email, role: user.role }, 'secret_key');
+//             res.status(200).json({ message: 'Login successful.', redirect: '/create-post ',log:2 });
+            
+//         });
+//     } else if (email.endsWith('@gmail.com')) {
+//         // Login the user using the clubs table
+//         connection.query('SELECT * FROM clubs WHERE cemail = ? AND cpassword = ?', [email, password], (err, results) => {
+//             if (err) {
+//                 console.error('Error querying database:', err);
+//                 return res.status(500).json({ message: 'Internal server error.' });
+//             }
+
+//             // If club with the provided email and password does not exist
+//             if (results.length === 0) {
+//                 return res.status(404).json({ message: 'Club not found or incorrect password.' });
+//             }
+
+//             // Club found, generate JWT token
+//             const club = results[0];
+//             const token = jwt.sign({ email: club.cemail, role: 'club' }, 'secret_key');
+//             res.status(200).json({ message: 'Login successful.', redirect: '/clubs',log:1 });
+//         });
+//     } else {
+//         // Invalid email format
+//         return res.status(400).json({ message: 'Invalid email format.' });
+//     }
+// });
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
     console.log(email, password);
@@ -153,26 +200,28 @@ app.post('/login', (req, res) => {
             // User found, generate JWT token
             const user = results[0];
             const token = jwt.sign({ email: user.email, role: user.role }, 'secret_key');
-            res.status(200).json({ message: 'Login successful.', redirect: '/create-post ',log:2 });
-            
+            res.status(200).json({ message: 'Login successful.', redirect: '/create-post ', log: 2 });
         });
     } else if (email.endsWith('@gmail.com')) {
-        // Login the user using the clubs table
         connection.query('SELECT * FROM clubs WHERE cemail = ? AND cpassword = ?', [email, password], (err, results) => {
             if (err) {
                 console.error('Error querying database:', err);
                 return res.status(500).json({ message: 'Internal server error.' });
             }
 
-            // If club with the provided email and password does not exist
             if (results.length === 0) {
                 return res.status(404).json({ message: 'Club not found or incorrect password.' });
             }
 
-            // Club found, generate JWT token
             const club = results[0];
-            const token = jwt.sign({ email: club.cemail, role: 'club' }, 'secret_key');
-            res.status(200).json({ message: 'Login successful.', redirect: '/clubs',log:1 });
+
+            if (club.cprofile !== null) {
+                const token = jwt.sign({ email: club.cemail, role: 'club' }, 'secret_key');
+                res.status(200).json({ message: 'Login successful.', redirect: '/clubs', log: 3,email:club.cemail });
+
+            } else {
+                res.status(200).json({ message: 'Login successful.', redirect: '/userprofile', log: 2 ,email:club.cemail });
+            }
         });
     } else {
         // Invalid email format
@@ -180,7 +229,65 @@ app.post('/login', (req, res) => {
     }
 });
 
+// app.post('/save-profile', upload.single('profilePicture'), (req, res) => {
+//     const { username, bio } = req.body;
+//     const email = req.headers['user-email'];
+//     const profilePicture = req.file.filename; // Assuming you're storing the filename in the database
 
+//     // Check if the user already exists in the clubs table
+//     connection.query('SELECT * FROM clubs WHERE cemail = ?', [email], (err, results) => {
+//         if (err) {
+//             console.error('Error querying database:', err);
+//             return res.status(500).json({ message: 'Internal server error.' });
+//         }
+
+//         if (results.length === 0) {
+//             // If user does not exist, return an error
+//             return res.status(404).json({ message: 'User not found.' });
+//         }
+
+//         // User found, update the profile data
+//         connection.query('UPDATE clubs SET cusername = ?, cbio = ?, cprofile = ? WHERE cemail = ?', [username, bio, profilePicture, email], (err, result) => {
+//             if (err) {
+//                 console.error('Error updating profile:', err);
+//                 return res.status(500).json({ message: 'Internal server error.' });
+//             }
+//             console.log('Profile updated successfully');
+//             res.status(200).json({ message: 'Profile updated successfully.' });
+//         });
+//     });
+// });
+
+app.post('/save-profile', upload.single('profilePicture'), (req, res) => {
+    const { username, bio } = req.body;
+    const email = req.headers['user-email'];
+    const profilePicture = req.file.filename; // Assuming you're storing the filename in the database
+    console.log("image file ",req.file.filename);
+
+    // Check if the user already exists in the clubs table
+    connection.query('SELECT * FROM clubs WHERE cemail = ?', [email], (err, results) => {
+        if (err) {
+            console.error('Error querying database:', err);
+            return res.status(500).json({ message: 'Internal server error.' });
+        }
+
+        if (results.length === 0) {
+            // If user does not exist, return an error
+            return res.status(404).json({ message: 'User not found.' });
+        }
+        console.log("profile pocture",profilePicture)
+        // User found, update the profile data
+        //const imageUrl = `http://yourdomain.com/uploads/${profilePicture}`; // Change the URL accordingly
+        connection.query('UPDATE clubs SET cusername = ?, cbio = ?, cprofile = ? WHERE cemail = ?', [username, bio, profilePicture, email], (err, result) => {
+            if (err) {
+                console.error('Error updating profile:', err);
+                return res.status(500).json({ message: 'Internal server error.' });
+            }
+            console.log('Profile updated successfully');
+            res.status(200).json({ message: 'Profile updated successfully.' });
+        });
+    });
+});
 app.post('/send-otp', (req, res) => {
 
     const { email } = req.body;

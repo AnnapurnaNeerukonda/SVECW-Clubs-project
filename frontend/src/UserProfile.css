@@ -1,0 +1,33 @@
+.container {
+    position: relative;
+  }
+  
+  .profile-info {
+    text-align: center;
+  }
+  
+  .profile-picture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  .fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .fullscreen-picture {
+    max-width: 100%;
+    max-height: 100%;
+  }
+  
+  
