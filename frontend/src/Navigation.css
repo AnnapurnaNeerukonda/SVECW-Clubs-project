@@ -1,0 +1,77 @@
+
+.navbar {
+    background-color: rgb(60, 87, 220);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+  }
+  
+  .navbar-toggle {
+    cursor: pointer;
+    display: none; /* Hide toggle button by default on larger screens */
+  }
+  
+  .toggle-line {
+    width: 25px;
+    height: 3px;
+    background-color: white;
+    margin: 5px;
+    transition: all 0.3s ease;
+  }
+  
+  .toggle-line.open:nth-child(1) {
+    transform: rotate(-45deg) translate(-5px, 6px);
+  }
+  
+  .toggle-line.open:nth-child(2) {
+    opacity: 0;
+  }
+  
+  .toggle-line.open:nth-child(3) {
+    transform: rotate(45deg) translate(-5px, -6px);
+  }
+  
+  .navbar-links {
+    list-style: none;
+    display: flex;
+  }
+  
+  .navbar-links li {
+    margin-right: 20px;
+  }
+  .navbar-links li a{
+    color: antiquewhite;
+    text-decoration: none;
+  }
+  
+  .navbar-links li:last-child {
+    margin-right: 0;
+  }
+  
+  @media screen and (max-width: 768px) {
+    .navbar-toggle {
+      display: block;
+    }
+  
+    .navbar-links {
+      flex-direction: column;
+      position: absolute;
+      top: 70px;
+      left: 0;
+      width: 100%;
+      background-color: rgb(28, 65, 227);
+      padding: 20px;
+      text-align: center;
+      display: none;
+    }
+  
+    .navbar-links.open {
+      display: flex;
+    }
+  
+    .navbar-links li {
+      margin: 10px 0;
+    }
+  }
+  

@@ -1,0 +1,31 @@
+.post-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-left: 20rem;
+  margin-right: 20rem;
+
+  
+}
+.post {
+  max-width: calc(100% - 40px); /* Adjust as needed */
+  margin: 20px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 6px #99a4df;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.like-section {
+  margin-top: 10px;
+}
+
+.like-count-container {
+  margin-top: 10px;
+}
