@@ -14,7 +14,6 @@ const connection = mysql.createConnection({
     password: '22b01a12b3@A',
     database: 'clubproject'
 });
-
 connection.connect(err => {
     if (err) {
         console.error('Error connecting to database:', err);
@@ -85,6 +84,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 app.post('/posts', upload.single('pimage'), (req, res) => {
     const { pdate, ptitle, pdescription } = req.body;
     const pimage = req.file.filename;
@@ -100,21 +100,41 @@ app.post('/posts', upload.single('pimage'), (req, res) => {
         }
     });
 });
+// app.get('/posts', (req, res) => {
+//     connection.query('SELECT pid,pimage, ptitle, pdescription, likes FROM posts ORDER BY pid DESC', (error, results, fields) => {
+//         if (error) {
+//             console.error('Error fetching posts:', error);
+//             res.status(500).json({ message: 'Internal server error' });
+//         } else {
+            
+//             const posts = results.map(row => ({
+//                 imageUrl: `/uploads/${row.pimage}`,
+//                 title: row.ptitle,
+//                 pid:row.pid,
+//                 description: row.pdescription,
+//                 likes: row.likes,
+//             }));
+//             console.log(posts)
+//             res.json({ posts });
+//         }
+//     });
+// });
 app.get('/posts', (req, res) => {
-    connection.query('SELECT pid,pimage, ptitle, pdescription, likes FROM posts ORDER BY pid DESC', (error, results, fields) => {
+    connection.query('SELECT posts.pid, posts.pimage, posts.ptitle, posts.pdescription, posts.likes, clubs.cusername, clubs.cprofile FROM posts INNER JOIN clubs ON posts.cid = clubs.cid ORDER BY posts.pid DESC LIMIT 0, 1000', (error, results, fields) => {
         if (error) {
             console.error('Error fetching posts:', error);
             res.status(500).json({ message: 'Internal server error' });
         } else {
-            
             const posts = results.map(row => ({
                 imageUrl: `/uploads/${row.pimage}`,
                 title: row.ptitle,
-                pid:row.pid,
+                pid: row.pid,
                 description: row.pdescription,
                 likes: row.likes,
+                username: row.cusername,
+                profile: row.cprofile
             }));
-            console.log(posts)
+            console.log(posts);
             res.json({ posts });
         }
     });
@@ -132,95 +152,47 @@ app.post('/posts/:postId/like', (req, res) => {
         }
     });
 });
-// app.post('/login', (req, res) => {
-//     const { email, password } = req.body;
-//     console.log(email, password);
 
-//     // Check if email is from svecw.edu.in domain
-//     if (email.endsWith('@svecw.edu.in')) {
-//         // Login the user using the users table
-//         connection.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password], (err, results) => {
-//             if (err) {
-//                 console.error('Error querying database:', err);
-//                 return res.status(500).json({ message: 'Internal server error.' });
-//             }
 
-//             // If user with the provided email and password does not exist
-//             if (results.length === 0) {
-//                 return res.status(404).json({ message: 'User not found or incorrect password.' });
-//             }
-
-//             // User found, generate JWT token
-//             const user = results[0];
-//             const token = jwt.sign({ email: user.email, role: user.role }, 'secret_key');
-//             res.status(200).json({ message: 'Login successful.', redirect: '/create-post ',log:2 });
-            
-//         });
-//     } else if (email.endsWith('@gmail.com')) {
-//         // Login the user using the clubs table
-//         connection.query('SELECT * FROM clubs WHERE cemail = ? AND cpassword = ?', [email, password], (err, results) => {
-//             if (err) {
-//                 console.error('Error querying database:', err);
-//                 return res.status(500).json({ message: 'Internal server error.' });
-//             }
-
-//             // If club with the provided email and password does not exist
-//             if (results.length === 0) {
-//                 return res.status(404).json({ message: 'Club not found or incorrect password.' });
-//             }
-
-//             // Club found, generate JWT token
-//             const club = results[0];
-//             const token = jwt.sign({ email: club.cemail, role: 'club' }, 'secret_key');
-//             res.status(200).json({ message: 'Login successful.', redirect: '/clubs',log:1 });
-//         });
-//     } else {
-//         // Invalid email format
-//         return res.status(400).json({ message: 'Invalid email format.' });
-//     }
-// });
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
     console.log(email, password);
 
-    // Check if email is from svecw.edu.in domain
     if (email.endsWith('@svecw.edu.in')) {
-        // Login the user using the users table
-        connection.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password], (err, results) => {
+        connection.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
             if (err) {
                 console.error('Error querying database:', err);
                 return res.status(500).json({ message: 'Internal server error.' });
             }
 
-            // If user with the provided email and password does not exist
             if (results.length === 0) {
-                return res.status(404).json({ message: 'User not found or incorrect password.' });
+                return res.status(404).json({ message: 'User not registered.' });
             }
 
-            // User found, generate JWT token
-            const user = results[0];
-            const token = jwt.sign({ email: user.email, role: user.role }, 'secret_key');
-            res.status(200).json({ message: 'Login successful.', redirect: '/create-post ', log: 2 });
+            // Redirect to '/clubs' for registered users with email ending with '@svecw.edu.in'
+            res.status(200).json({ message: 'Login successful.', redirect: 'clubs', log: 2 });
         });
     } else if (email.endsWith('@gmail.com')) {
-        connection.query('SELECT * FROM clubs WHERE cemail = ? AND cpassword = ?', [email, password], (err, results) => {
+        // Check if club is registered
+        connection.query('SELECT * FROM clubs WHERE cemail = ?', [email], (err, results) => {
             if (err) {
                 console.error('Error querying database:', err);
                 return res.status(500).json({ message: 'Internal server error.' });
             }
 
             if (results.length === 0) {
-                return res.status(404).json({ message: 'Club not found or incorrect password.' });
+                return res.status(404).json({ message: 'Club not registered.' });
             }
 
             const club = results[0];
-
+            
+            // Check if club profile is present
             if (club.cprofile !== null) {
-                const token = jwt.sign({ email: club.cemail, role: 'club' }, 'secret_key');
-                res.status(200).json({ message: 'Login successful.', redirect: '/clubs', log: 3,email:club.cemail });
-
+                // Redirect to '/create-post' if club profile is present
+                res.status(200).json({ message: 'Login successful.', redirect: 'create-post', log: 3, email: club.cemail });
             } else {
-                res.status(200).json({ message: 'Login successful.', redirect: '/userprofile', log: 2 ,email:club.cemail });
+                // Redirect to '/userprofile' if club profile is not present
+                res.status(200).json({ message: 'Login successful.', redirect: 'userprofile', log: 2, email: club.cemail });
             }
         });
     } else {
@@ -229,34 +201,7 @@ app.post('/login', (req, res) => {
     }
 });
 
-// app.post('/save-profile', upload.single('profilePicture'), (req, res) => {
-//     const { username, bio } = req.body;
-//     const email = req.headers['user-email'];
-//     const profilePicture = req.file.filename; // Assuming you're storing the filename in the database
 
-//     // Check if the user already exists in the clubs table
-//     connection.query('SELECT * FROM clubs WHERE cemail = ?', [email], (err, results) => {
-//         if (err) {
-//             console.error('Error querying database:', err);
-//             return res.status(500).json({ message: 'Internal server error.' });
-//         }
-
-//         if (results.length === 0) {
-//             // If user does not exist, return an error
-//             return res.status(404).json({ message: 'User not found.' });
-//         }
-
-//         // User found, update the profile data
-//         connection.query('UPDATE clubs SET cusername = ?, cbio = ?, cprofile = ? WHERE cemail = ?', [username, bio, profilePicture, email], (err, result) => {
-//             if (err) {
-//                 console.error('Error updating profile:', err);
-//                 return res.status(500).json({ message: 'Internal server error.' });
-//             }
-//             console.log('Profile updated successfully');
-//             res.status(200).json({ message: 'Profile updated successfully.' });
-//         });
-//     });
-// });
 
 app.post('/save-profile', upload.single('profilePicture'), (req, res) => {
     const { username, bio } = req.body;
@@ -407,7 +352,7 @@ app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something went wrong!');
 });
-
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
+

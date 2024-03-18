@@ -5,9 +5,9 @@ import LoginPage from './Login';
 import { Route,Routes } from 'react-router-dom';
 import Navigation from './Navigation';
 import Clubs from './Clubs';
-import Appa from './CreatePost';
+// import Appa from './CreatePost';
 import Postdisplay from './Postdisplay';
-import MacBookProPostForm from './CreatePost';
+import CreatePost from './CreatePost';
 import UserProfile from './uploadprofilepicture';
 function App(){
   return(
@@ -19,8 +19,9 @@ function App(){
         <Route path="/login" element={<LoginPage />} /> 
         <Route path='/clubs' element ={<Clubs/>}/>
         <Route path='/displaypost' element={<Postdisplay/>}/>
-        <Route path='/post' element={< Appa/>}/> 
-        <Route path='/user' element={<UserProfile/>}   />    
+        {/* <Route path='/post' element={< Appa/>}/>  */}
+        <Route path='/user' element={<UserProfile/>}   /> 
+        <Route path='/create-post' element={<CreatePost/>}   /> 
       </Routes>
     </div>
   )
