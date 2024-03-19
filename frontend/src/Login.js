@@ -8,40 +8,16 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
-    
-    //     try {
-    //         const response = await axios.post("http://localhost:8080/login", { email: username, password });
-    //         console.log(response.data);
-    //         const {  email,log } = response.data;
-    //         console.log("login successful", response.data);
-    //         localStorage.setItem('email', email);
-    //         localStorage.setItem('log', log); 
-    //         console.log(log)
-    //         if (log==2) {
-    //             navigate('/clubs');
-    //         } else if (log==3) {
-    //             navigate('/create-post');
-    //         } else if (log==1) {
-    //            navigate('/userprofile');
-    //         }
-    //     } catch (error) {
-    //         console.error('Error logging in:', error);
-    //         setError(error.response?.data?.message || 'An error occurred during login.');
-    //     }
-    // };
     const handleSubmit = async (e) => {
         e.preventDefault();
     
         try {
             const response = await axios.post("http://localhost:8080/login", { email: username, password });
-            console.log("Response data:", response.data); // Log the entire response to check its structure
+            console.log("Response data:", response.data); 
             const { email, log } = response.data;
             console.log("Login successful", response.data);
             localStorage.setItem('email', email);
-            localStorage.setItem('log', log || 1); // Set a default value for log if it's undefined
+            localStorage.setItem('log', log || 1); 
             console.log(log);
             switch (log) {
                 case 2:
@@ -51,7 +27,7 @@ const Login = () => {
                     navigate('/create-post');
                     break;
                 default:
-                    navigate('/userprofile');
+                    navigate('/userProfile');
             }
         } catch (error) {
             console.error('Error logging in:', error);

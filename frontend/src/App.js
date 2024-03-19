@@ -19,8 +19,7 @@ function App(){
         <Route path="/login" element={<LoginPage />} /> 
         <Route path='/clubs' element ={<Clubs/>}/>
         <Route path='/displaypost' element={<Postdisplay/>}/>
-        {/* <Route path='/post' element={< Appa/>}/>  */}
-        <Route path='/user' element={<UserProfile/>}   /> 
+        <Route path='/userProfile' element={<UserProfile/>}   /> 
         <Route path='/create-post' element={<CreatePost/>}   /> 
       </Routes>
     </div>

@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import './Postdisplay.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import FontAwesomeIcon
 import { faThumbsUp } from '@fortawesome/free-solid-svg-icons';
+
 function Postdisplay() {
     const [posts, setPosts] = useState([]);
-
+   
     useEffect(() => {
         fetchPosts();
     }, []);
@@ -43,29 +44,34 @@ function Postdisplay() {
             console.error('Error updating like status:', error);
         }
     };
-        return (
-            <div className="post-container">
-                {posts.map((post, index) => (
-                    <div key={index} className="post">
-                        <h2>{post.title}</h2>
-                        <img src={`http://localhost:8080${post.imageUrl}`} alt={post.title} />
-                        <p>{post.description}</p>
-                        <div className="like-section">
-                            <span
-                                role="button"
-                                className="like-icon"
-                                onClick={() => handleLike(post.pid, index)}
-                            >
-                                <FontAwesomeIcon icon={faThumbsUp} style={{ color: post.likes === 0 ? 'black' : 'blue', background: post.likes === 0 ? 'white' : 'blue' }} />
-                            </span>
-                        </div>
-                        <div className="like-count-container">
-                            <span className="like-count">{post.likes}</span>
-                        </div>
+    
+    return (
+        <div className="post-container">
+            {posts.map((post, index) => (
+                <div key={index} className="post">
+                    <div className="user-info">
+                        <img src={`http://localhost:8080/uploads/${post.profile}`} alt="Profile" className="profile-image" />
+                        <span className="username">{post.username}</span>
                     </div>
-                ))}
-            </div>
-        );
+                    <h2>{post.title}</h2>
+                    <img src={`http://localhost:8080${post.imageUrl}`} alt={post.title} />
+                    <p>{post.description}</p>
+                    <div className="like-section">
+                        <span
+                            role="button"
+                            className="like-icon"
+                            onClick={() => handleLike(post.pid, index)}
+                        >
+                            <FontAwesomeIcon icon={faThumbsUp} style={{ color: post.likes === 0 ? 'black' : 'blue', background: post.likes === 0 ? 'white' : 'blue' }} />
+                        </span>
+                    </div>
+                    <div className="like-count-container">
+                        <span className="like-count">{post.likes}</span>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
 }
 
 export default Postdisplay;

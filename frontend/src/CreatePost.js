@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import './Createpost.css';
 
@@ -7,18 +8,21 @@ const MacBookProPostForm = () => {
   const [date, setDate] = useState('');
   const [image, setImage] = useState(null);
 
+  const email = localStorage.getItem('email'); 
+ 
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    console.log(email);
     const formData = new FormData();
     formData.append('pdate', date);
     formData.append('ptitle', title);
     formData.append('pdescription', description);
     formData.append('pimage', image);
+    formData.append('email', email);
 
     try {
       const response = await fetch('http://localhost:8080/posts', {
@@ -28,7 +32,6 @@ const MacBookProPostForm = () => {
 
       if (response.ok) {
         console.log('Post created successfully');
-        // Optionally, you can redirect or perform any other action upon successful post creation
       } else {
         console.error('Failed to create post:', response.statusText);
       }

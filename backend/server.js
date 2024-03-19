@@ -84,22 +84,53 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
 app.post('/posts', upload.single('pimage'), (req, res) => {
-    const { pdate, ptitle, pdescription } = req.body;
+    const { pdate, ptitle, pdescription, email } = req.body;
     const pimage = req.file.filename;
-
-    const query = 'INSERT INTO posts (pdate, pimage, ptitle, pdescription) VALUES (?, ?, ?, ?)';
-    const values = [pdate, pimage, ptitle, pdescription];
-    connection.query(query, values, (error, results, fields) => {
-        if (error) {
-            console.error('Error inserting post:', error);
-            res.status(500).json({ message: 'Internal server error' });
+  
+    // Query to fetch the cid based on the provided email
+    const query = 'SELECT cid FROM clubs WHERE cemail = ?';
+    connection.query(query, [email], (error, results, fields) => {
+      if (error) {
+        console.error('Error fetching cid:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      } else {
+        if (results.length === 0) {
+          res.status(404).json({ message: 'User not found' });
         } else {
-            res.status(201).json({ message: 'Post created successfully', postId: results.insertId });
+          const cid = results[0].cid;
+  
+          // Insert the post data along with the fetched cid into the posts table
+          const insertQuery = 'INSERT INTO posts (pdate, pimage, ptitle, pdescription, cid) VALUES (?, ?, ?, ?, ?)';
+          const values = [pdate, pimage, ptitle, pdescription, cid];
+          connection.query(insertQuery, values, (insertError, insertResults, insertFields) => {
+            if (insertError) {
+              console.error('Error inserting post:', insertError);
+              res.status(500).json({ message: 'Internal server error' });
+            } else {
+              res.status(201).json({ message: 'Post created successfully', postId: insertResults.insertId });
+            }
+          });
         }
+      }
     });
-});
+  });
+  
+// app.post('/posts', upload.single('pimage'), (req, res) => {
+//     const { pdate, ptitle, pdescription } = req.body;
+//     const pimage = req.file.filename;
+
+//     const query = 'INSERT INTO posts (pdate, pimage, ptitle, pdescription) VALUES (?, ?, ?, ?)';
+//     const values = [pdate, pimage, ptitle, pdescription];
+//     connection.query(query, values, (error, results, fields) => {
+//         if (error) {
+//             console.error('Error inserting post:', error);
+//             res.status(500).json({ message: 'Internal server error' });
+//         } else {
+//             res.status(201).json({ message: 'Post created successfully', postId: results.insertId });
+//         }
+//     });
+// });
 // app.get('/posts', (req, res) => {
 //     connection.query('SELECT pid,pimage, ptitle, pdescription, likes FROM posts ORDER BY pid DESC', (error, results, fields) => {
 //         if (error) {
@@ -192,7 +223,7 @@ app.post('/login', (req, res) => {
                 res.status(200).json({ message: 'Login successful.', redirect: 'create-post', log: 3, email: club.cemail });
             } else {
                 // Redirect to '/userprofile' if club profile is not present
-                res.status(200).json({ message: 'Login successful.', redirect: 'userprofile', log: 2, email: club.cemail });
+                res.status(200).json({ message: 'Login successful.', redirect: 'userprofile', log: 1, email: club.cemail });
             }
         });
     } else {
@@ -206,9 +237,10 @@ app.post('/login', (req, res) => {
 app.post('/save-profile', upload.single('profilePicture'), (req, res) => {
     const { username, bio } = req.body;
     const email = req.headers['user-email'];
+    console.log(req.file,req.body)
     const profilePicture = req.file.filename; // Assuming you're storing the filename in the database
     console.log("image file ",req.file.filename);
-
+    
     // Check if the user already exists in the clubs table
     connection.query('SELECT * FROM clubs WHERE cemail = ?', [email], (err, results) => {
         if (err) {
